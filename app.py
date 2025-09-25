@@ -12,8 +12,8 @@ import torch
 st.set_page_config(
     page_title="Urdu-Roman Urdu Transliterator",
     page_icon="📝",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 # Custom CSS for enhanced UI
@@ -459,68 +459,13 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Sidebar
-with st.sidebar:
-    st.markdown("<div class='sidebar-section'>", unsafe_allow_html=True)
-    st.header("🤖 Model Status")
-    
-    if not st.session_state.model_loaded:
-        with st.spinner("Loading BiLSTM Model..."):
-            model, loaded = load_model()
-            if loaded:
-                st.session_state.model = model
-                st.session_state.model_loaded = True
-    
-    if st.session_state.model_loaded and hasattr(st.session_state, 'model') and st.session_state.model:
-        st.markdown("""
-            <div class="model-status status-connected">
-                <div class="status-indicator"></div>
-                <div>
-                    <strong>Connected</strong><br>
-                    <small>{}</small>
-                </div>
-            </div>
-        """.format(st.session_state.model.model_name), unsafe_allow_html=True)
-        
-
-        
-    else:
-        st.markdown("""
-            <div class="model-status status-disconnected">
-                <div class="status-indicator"></div>
-                <div>
-                    <strong>Disconnected</strong><br>
-                    <small>Model not loaded</small>
-                </div>
-            </div>
-        """, unsafe_allow_html=True)
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Quick Example
-    st.markdown("<div class='sidebar-section'>", unsafe_allow_html=True)
-    st.header("⚡ Quick Example")
-    
-    if st.button("السلام علیکم", key="example_salam", help="Try this example"):
-        st.session_state.example_text = "السلام علیکم"
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    # History
-    st.markdown("<div class='sidebar-section'>", unsafe_allow_html=True)
-    st.header("📜 Recent History")
-    
-    if st.session_state.history:
-        # Show only the most recent translation
-        latest = st.session_state.history[-1]
-        st.markdown(f"""
-            <div class="history-item">
-                <div class="history-urdu">{latest['urdu']}</div>
-                <div class="history-roman">{latest['roman']}</div>
-            </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.info("No transliterations yet")
-    st.markdown("</div>", unsafe_allow_html=True)
+# Load model (moved from sidebar)
+if not st.session_state.model_loaded:
+    with st.spinner("Loading BiLSTM Model..."):
+        model, loaded = load_model()
+        if loaded:
+            st.session_state.model = model
+            st.session_state.model_loaded = True
 
 # Main content area
 st.markdown("<div class='transliteration-card slide-in'>", unsafe_allow_html=True)
@@ -529,7 +474,13 @@ st.markdown("<div class='transliteration-card slide-in'>", unsafe_allow_html=Tru
 st.markdown("<div class='input-section'>", unsafe_allow_html=True)
 st.subheader("🖋️ Enter Urdu Text")
 
-# Check if there's example text from sidebar
+# Quick example button
+col1, col2 = st.columns([3, 1])
+with col2:
+    if st.button("Try: السلام علیکم", key="example_button", help="Click to try this example"):
+        st.session_state.example_text = "السلام علیکم"
+
+# Check if there's example text
 default_text = st.session_state.get('example_text', '')
 
 urdu_input = st.text_area(
