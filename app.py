@@ -465,14 +465,11 @@ st.subheader("🖋️ Enter Urdu Text")
 col1, col2 = st.columns([3, 1])
 with col2:
     if st.button("Try: پر کتاب عشق کا ہر باب مت دیکھا کرو", key="example_button", help="Click to try this example"):
-        st.session_state.example_text = "پر کتاب عشق کا ہر باب مت دیکھا کرو"
-
-# Check if there's example text
-default_text = st.session_state.get('example_text', '')
+        st.session_state.urdu_input = "پر کتاب عشق کا ہر باب مت دیکھا کرو"
+        st.rerun()
 
 urdu_input = st.text_area(
     "Type or paste Urdu text here:",
-    value=default_text,
     height=120,
     placeholder="یہاں اردو متن لکھیں...",
     key="urdu_input",
@@ -500,10 +497,6 @@ if st.button("🔄 Transliterate", key="transliterate", type="primary", use_cont
                 
                 st.session_state.total_transliterations += 1
                 st.session_state.current_output = roman_output
-                
-                # Clear example text
-                if 'example_text' in st.session_state:
-                    del st.session_state.example_text
     else:
         st.warning("⚠️ Please enter some Urdu text to transliterate.")
 
