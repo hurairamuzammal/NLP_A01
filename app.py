@@ -10,7 +10,7 @@ import torch
 
 # Page configuration
 st.set_page_config(
-    page_title="Urdu-Roman Urdu Transliterator",
+    page_title="Urdu to Roman Urdu Transliterator",
     page_icon="📝",
     layout="centered",
     initial_sidebar_state="collapsed"
