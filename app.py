@@ -446,12 +446,8 @@ def load_model():
         return fallback_model, True
 
 # Header
-st.markdown("""
-    <div class="main-header">
-        <h1 class="main-title">📝 Urdu-Roman Urdu Transliterator</h1>
-        <p class="subtitle">Powered by BiLSTM Neural Network with Attention Mechanism</p>
-    </div>
-""", unsafe_allow_html=True)
+st.title("📝 Urdu-Roman Urdu Transliterator")
+st.caption("Powered by BiLSTM Neural Network with Attention Mechanism")
 
 # Load model silently
 if not st.session_state.model_loaded:
@@ -461,17 +457,15 @@ if not st.session_state.model_loaded:
         st.session_state.model_loaded = True
 
 # Main content area
-st.markdown("<div class='transliteration-card slide-in'>", unsafe_allow_html=True)
     
 # Input Section
-st.markdown("<div class='input-section'>", unsafe_allow_html=True)
 st.subheader("🖋️ Enter Urdu Text")
 
 # Quick example button
 col1, col2 = st.columns([3, 1])
 with col2:
-    if st.button("Try: السلام علیکم", key="example_button", help="Click to try this example"):
-        st.session_state.example_text = "السلام علیکم"
+    if st.button("Try: پر کتاب عشق کا ہر باب مت دیکھا کرو", key="example_button", help="Click to try this example"):
+        st.session_state.example_text = "پر کتاب عشق کا ہر باب مت دیکھا کرو"
 
 # Check if there's example text
 default_text = st.session_state.get('example_text', '')
@@ -488,7 +482,6 @@ urdu_input = st.text_area(
 # Character count
 char_count = len(urdu_input.replace(' ', '') if urdu_input else '')
 st.caption(f"Characters: {char_count}")
-st.markdown("</div>", unsafe_allow_html=True)
 
 # Transliterate Button
 if st.button("🔄 Transliterate", key="transliterate", type="primary", use_container_width=True):
@@ -515,7 +508,6 @@ if st.button("🔄 Transliterate", key="transliterate", type="primary", use_cont
         st.warning("⚠️ Please enter some Urdu text to transliterate.")
 
 # Output Section
-st.markdown("<div class='output-section'>", unsafe_allow_html=True)
 st.subheader("🎯 Roman Urdu Output")
 
 if 'current_output' in st.session_state:
@@ -541,9 +533,6 @@ if 'current_output' in st.session_state:
             st.rerun()
 else:
     st.info("💡 Enter Urdu text above and click 'Transliterate' to see the Roman Urdu output")
-
-st.markdown("</div>", unsafe_allow_html=True)
-st.markdown("</div>", unsafe_allow_html=True)
 
 
 
