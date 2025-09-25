@@ -482,12 +482,7 @@ with st.sidebar:
             </div>
         """.format(st.session_state.model.model_name), unsafe_allow_html=True)
         
-        st.subheader("📊 Model Information")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.metric("Vocabulary Size", f"{st.session_state.model.vocab_size:,}")
-        with col2:
-            st.metric("Hidden Units", st.session_state.model.hidden_units)
+
         
     else:
         st.markdown("""
@@ -502,21 +497,12 @@ with st.sidebar:
     
     st.markdown("</div>", unsafe_allow_html=True)
     
-    # Quick Examples
+    # Quick Example
     st.markdown("<div class='sidebar-section'>", unsafe_allow_html=True)
-    st.header("⚡ Quick Examples")
+    st.header("⚡ Quick Example")
     
-    examples = [
-        "السلام علیکم",
-        "آپ کا نام کیا ہے",
-        "شکریہ",
-        "خوش آمدید",
-        "مدد کریں"
-    ]
-    
-    for example in examples:
-        if st.button(example, key=f"example_{example}", help=f"Transliterate: {example}"):
-            st.session_state.example_text = example
+    if st.button("السلام علیکم", key="example_salam", help="Try this example"):
+        st.session_state.example_text = "السلام علیکم"
     st.markdown("</div>", unsafe_allow_html=True)
     
     # History
@@ -524,144 +510,104 @@ with st.sidebar:
     st.header("📜 Recent History")
     
     if st.session_state.history:
-        for item in reversed(st.session_state.history[-5:]):
-            st.markdown(f"""
-                <div class="history-item">
-                    <div class="history-urdu">{item['urdu']}</div>
-                    <div class="history-roman">{item['roman']}</div>
-                </div>
-            """, unsafe_allow_html=True)
+        # Show only the most recent translation
+        latest = st.session_state.history[-1]
+        st.markdown(f"""
+            <div class="history-item">
+                <div class="history-urdu">{latest['urdu']}</div>
+                <div class="history-roman">{latest['roman']}</div>
+            </div>
+        """, unsafe_allow_html=True)
     else:
         st.info("No transliterations yet")
     st.markdown("</div>", unsafe_allow_html=True)
 
 # Main content area
-col1, col2 = st.columns([2, 1])
+st.markdown("<div class='transliteration-card slide-in'>", unsafe_allow_html=True)
+    
+# Input Section
+st.markdown("<div class='input-section'>", unsafe_allow_html=True)
+st.subheader("🖋️ Enter Urdu Text")
 
-with col1:
-    st.markdown("<div class='transliteration-card slide-in'>", unsafe_allow_html=True)
-    
-    # Input Section
-    st.markdown("<div class='input-section'>", unsafe_allow_html=True)
-    st.subheader("🖋️ Enter Urdu Text")
-    
-    # Check if there's example text from sidebar
-    default_text = st.session_state.get('example_text', '')
-    
-    urdu_input = st.text_area(
-        "Type or paste Urdu text here:",
-        value=default_text,
-        height=120,
-        placeholder="یہاں اردو متن لکھیں...",
-        key="urdu_input",
-        label_visibility="collapsed"
-    )
-    
-    # Character count
-    char_count = len(urdu_input.replace(' ', '') if urdu_input else '')
-    st.caption(f"Characters: {char_count}")
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Transliterate Button
-    if st.button("🔄 Transliterate", key="transliterate", type="primary", use_container_width=True):
-        if urdu_input and urdu_input.strip():
-            if st.session_state.model_loaded and hasattr(st.session_state, 'model') and st.session_state.model:
-                with st.spinner("🔮 Transliterating..."):
-                    # Simulate processing time for better UX
-                    time.sleep(0.5)
+# Check if there's example text from sidebar
+default_text = st.session_state.get('example_text', '')
+
+urdu_input = st.text_area(
+    "Type or paste Urdu text here:",
+    value=default_text,
+    height=120,
+    placeholder="یہاں اردو متن لکھیں...",
+    key="urdu_input",
+    label_visibility="collapsed"
+)
+
+# Character count
+char_count = len(urdu_input.replace(' ', '') if urdu_input else '')
+st.caption(f"Characters: {char_count}")
+st.markdown("</div>", unsafe_allow_html=True)
+
+# Transliterate Button
+if st.button("🔄 Transliterate", key="transliterate", type="primary", use_container_width=True):
+    if urdu_input and urdu_input.strip():
+        if st.session_state.model_loaded and hasattr(st.session_state, 'model') and st.session_state.model:
+            with st.spinner("🔮 Transliterating..."):
+                # Simulate processing time for better UX
+                time.sleep(0.5)
+                
+                # Get prediction from model
+                roman_output = st.session_state.model.predict(urdu_input)
+                
+                # Add to history
+                st.session_state.history.append({
+                    'urdu': urdu_input,
+                    'roman': roman_output,
+                    'timestamp': datetime.now()
+                })
+                
+                st.session_state.total_transliterations += 1
+                st.session_state.current_output = roman_output
+                
+                # Clear example text
+                if 'example_text' in st.session_state:
+                    del st.session_state.example_text
                     
-                    # Get prediction from model
-                    roman_output = st.session_state.model.predict(urdu_input)
-                    
-                    # Add to history
-                    st.session_state.history.append({
-                        'urdu': urdu_input,
-                        'roman': roman_output,
-                        'timestamp': datetime.now()
-                    })
-                    
-                    st.session_state.total_transliterations += 1
-                    st.session_state.current_output = roman_output
-                    
-                    # Clear example text
-                    if 'example_text' in st.session_state:
-                        del st.session_state.example_text
-                        
-            else:
-                st.error("❌ Model not loaded. Please check your model configuration.")
         else:
-            st.warning("⚠️ Please enter some Urdu text to transliterate.")
-    
-    # Output Section
-    st.markdown("<div class='output-section'>", unsafe_allow_html=True)
-    st.subheader("🎯 Roman Urdu Output")
-    
-    if 'current_output' in st.session_state:
-        st.markdown(f"""
-            <div class="result-text fade-in">
-                {st.session_state.current_output}
-            </div>
-        """, unsafe_allow_html=True)
-        
-        # Copy button
-        st.code(st.session_state.current_output, language="text")
-        
-        # Action buttons
-        col_copy, col_clear = st.columns(2)
-        with col_copy:
-            if st.button("📋 Copy to Clipboard", use_container_width=True):
-                st.success("✅ Copied to clipboard!")
-        
-        with col_clear:
-            if st.button("🗑️ Clear Output", use_container_width=True):
-                if 'current_output' in st.session_state:
-                    del st.session_state.current_output
-                st.rerun()
+            st.error("❌ Model not loaded. Please check your model configuration.")
     else:
-        st.info("💡 Enter Urdu text above and click 'Transliterate' to see the Roman Urdu output")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
-    st.markdown("</div>", unsafe_allow_html=True)
+        st.warning("⚠️ Please enter some Urdu text to transliterate.")
 
-with col2:
-    # Statistics Dashboard
-    st.markdown("<div class='stats-card'>", unsafe_allow_html=True)
-    st.subheader("📈 Statistics")
+# Output Section
+st.markdown("<div class='output-section'>", unsafe_allow_html=True)
+st.subheader("🎯 Roman Urdu Output")
+
+if 'current_output' in st.session_state:
+    st.markdown(f"""
+        <div class="result-text fade-in">
+            {st.session_state.current_output}
+        </div>
+    """, unsafe_allow_html=True)
     
-    col_stat1, col_stat2 = st.columns(2)
-    with col_stat1:
-        st.markdown(f"""
-            <div style="text-align: center;">
-                <span class="stats-number">{st.session_state.total_transliterations}</span>
-                <div class="stats-label">Total Transliterations</div>
-            </div>
-        """, unsafe_allow_html=True)
+    # Copy button
+    st.code(st.session_state.current_output, language="text")
     
-    with col_stat2:
-        st.markdown(f"""
-            <div style="text-align: center;">
-                <span class="stats-number">{len(st.session_state.history)}</span>
-                <div class="stats-label">In History</div>
-            </div>
-        """, unsafe_allow_html=True)
+    # Action buttons
+    col_copy, col_clear = st.columns(2)
+    with col_copy:
+        if st.button("📋 Copy to Clipboard", use_container_width=True):
+            st.success("✅ Copied to clipboard!")
     
-    st.markdown("</div>", unsafe_allow_html=True)
-    
-    # Model Performance
-    st.markdown("<div class='stats-card'>", unsafe_allow_html=True)
-    st.subheader("⚡ Performance")
-    
-    if st.session_state.model_loaded:
-        # Simulate real-time metrics
-        accuracy = 95.2 + np.random.normal(0, 0.5)
-        speed = 0.1 + np.random.normal(0, 0.02)
-        
-        st.metric("Accuracy", f"{accuracy:.1f}%", delta=f"{np.random.normal(0, 0.1):.1f}%")
-        st.metric("Processing Speed", f"{speed:.3f}s", delta=f"{np.random.normal(0, 0.005):.3f}s")
-    else:
-        st.warning("Model not loaded")
-    
-    st.markdown("</div>", unsafe_allow_html=True)
+    with col_clear:
+        if st.button("🗑️ Clear Output", use_container_width=True):
+            if 'current_output' in st.session_state:
+                del st.session_state.current_output
+            st.rerun()
+else:
+    st.info("💡 Enter Urdu text above and click 'Transliterate' to see the Roman Urdu output")
+
+st.markdown("</div>", unsafe_allow_html=True)
+st.markdown("</div>", unsafe_allow_html=True)
+
+
 
 # Footer
 st.markdown("---")
