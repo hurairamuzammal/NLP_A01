@@ -446,8 +446,8 @@ def load_model():
         return fallback_model, True
 
 # Header
-st.title("📝 Urdu-Roman Urdu Transliterator")
-st.caption("Powered by BiLSTM Neural Network with Attention Mechanism")
+st.title("Urdu to Roman Urdu Transliterator")
+st.caption("Powered by BiLSTM and LSTM  Neural Network")
 
 # Load model silently
 if not st.session_state.model_loaded:
