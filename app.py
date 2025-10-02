@@ -131,7 +131,12 @@ st.markdown("""
         font-size: 1.1rem;
         direction: rtl;
         text-align: right;
+        color: var(--text-dark) !important;
         transition: all 0.3s ease;
+    }
+    
+    .stTextArea textarea {
+        color: var(--text-dark) !important;
     }
     
     .stTextArea > div > div:focus-within {
